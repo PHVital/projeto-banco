@@ -1,74 +1,156 @@
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import Cliente, ContaBancaria, Transacao
-import json
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
+from rest_framework import status
+from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
 
-@csrf_exempt
-def criar_cliente_conta(request):
+from contas.models import Cliente, ContaBancaria, Transacao
+from contas.services.cliente_services import criar_cliente_e_conta, depositar_valor, sacar_valor, transferir_valor
+
+@api_view(['POST'])
+def registrar_cliente(request):
     if request.method == 'POST':
-        dados = json.loads(request.body)
-        nome = dados.get('nome')
-        cpf = dados.get('cpf')
-        email = dados.get('email')
-        data_nascimento = dados.get('data_nascimento')
+        try:
+            nome = request.data.get('nome')
+            cpf = request.data.get('cpf')
+            email = request.data.get('email')
+            data_nascimento = request.data.get('data_nascimento')
+            senha = request.data.get('senha')
 
-        if Cliente.objects.filter(cpf=cpf).exists():
-            return JsonResponse({'erro': 'Cliente com esse CPF já existe'}, status=400)
+            cliente, conta, token = criar_cliente_e_conta(
+                nome=nome, 
+                cpf=cpf, 
+                email=email,
+                data_nascimento=data_nascimento,
+                senha=senha
+            )
+            
+            return Response({
+                'mensagem': 'Cliente criado com sucesso!',
+                'cliente_id': conta.numero_conta,
+                'token': token.key
+            }, status=status.HTTP_201_CREATED)
         
-        cliente = Cliente.objects.create(nome=nome, cpf=cpf, email=email, data_nascimento=data_nascimento)
-        conta = ContaBancaria.objects.create(cliente=cliente)
+        except Exception as e:
+            return Response({'erro': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        return JsonResponse({
-            'mensagem': 'Cliente e Conta criados!',
-            'cliente_id': cliente.id,
-            'numero_conta': conta.numero_conta,
-            'saldo_inicial': str(conta.saldo)
+
+@api_view(['POST'])
+def autenticar_cliente(request):
+    cpf = request.data.get('cpf')
+    senha = request.data.get('senha')
+
+    user = authenticate(request, cpf=cpf, password=senha)
+
+    if user is None:
+        return Response({'erro': 'Credenciais inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    token, _ = Token.objects.get_or_create(user=user)
+
+    return Response({
+        'mensagem': 'Autenticado com sucesso!',
+        'token': token.key,
+        'cliente_id': user.id,
+        'nome': user.nome
+    })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def deposito(request):
+    try:
+        numero_conta = request.data.get('numero_conta')
+        valor = request.data.get('valor')
+
+        conta = get_object_or_404(ContaBancaria, numero_conta=numero_conta)
+
+        if conta.cliente != request.user:
+            return Response({'erro': 'Você não tem permissão para depositar nesta conta.'}, status=status.HTTP_403_FORBIDDEN)
+
+        conta = depositar_valor(numero_conta, valor)
+
+        return Response({
+            'mensagem': f'Depósito de R${valor} realizado com sucesso.',
+            'saldo_atual': float(conta.saldo)
         })
     
-@csrf_exempt
-def depositar(request):
-    if request.method == 'POST':
-        dados = json.loads(request.body)
-        numero_conta = dados.get('numero_conta')
-        valor = float(dados.get('valor'))
+    except Exception as e:
+        return Response({'erro': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def saque(request):
     try:
-        conta = ContaBancaria.objects.get(numero_conta=numero_conta)
-        conta.saldo += valor
-        conta.save()
-        Transacao.objects.create(conta=conta, tipo='D', valor=valor)
+        numero_conta = request.data.get('numero_conta')
+        valor = request.data.get('valor')
 
-        return JsonResponse({'mensagem': f'Depósito de R${valor:.2f} realizado com sucesso.'})
-    except ContaBancaria.DoesNotExist:
-        return JsonResponse({'erro': 'Conta não encontrada.'}, status=404)
-    
-@csrf_exempt
-def sacar(request):
-    if request.method == 'POST':
-        dados = json.loads(request.body)
-        numero_conta = dados.get('numero_conta')
-        valor = float(dados.get('valor'))
+        conta = get_object_or_404(ContaBancaria, numero_conta=numero_conta)
 
-    try:
-        conta = ContaBancaria.objects.get(numero_conta=numero_conta)
-        if conta.saldo >= valor:
-            conta.saldo -= valor
-            conta.save()
-            Transacao.objects.create(conta=conta, tipo='S', valor=valor)
+        if conta.cliente != request.user:
+            return Response({'erro': 'Você não tem permissão para depositar nesta conta.'}, status=status.HTTP_403_FORBIDDEN)
 
-            return JsonResponse({'mensagem': f'Saque de R${valor:.2f} realizado com sucesso.'})
-        else:
-            return JsonResponse({'erro': 'Saldo insulficiente.'}, status=400)
-    except ContaBancaria.DoesNotExist:
-        return JsonResponse({'erro': 'Conta não encontrada.'}, status=404)
-    
+        conta = sacar_valor(numero_conta, valor)
 
-def consultar_saldo(request, numero_conta):
-    try:
-        conta = ContaBancaria.objects.get(numero_conta=numero_conta)
-        return JsonResponse({
-            'numero_conta': conta.numero_conta,
-            'saldo': str(conta.saldo)
+        return Response({
+            'mensagem': f'Saque de R${valor} realizado com sucesso.',
+            'saldo_atual': float(conta.saldo)
         })
-    except ContaBancaria.DoesNotExist:
-        return JsonResponse({'erro': 'Conta não encontrada.'}, status=404)
+    
+    except Exception as e:
+        return Response({'erro': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def consultar_saldo(request):
+    conta = ContaBancaria.objects.get(cliente=request.user)
+    return Response({
+        'numero_conta': conta.numero_conta,
+        'saldo': float(conta.saldo)
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def extrato_transacoes(request):
+    conta = ContaBancaria.objects.get(cliente=request.user)
+    transacoes = Transacao.objects.filter(conta=conta).order_by('-data')
+
+    extrato = [
+        {
+            'tipo': t.tipo,
+            'valor': float(t.valor),
+            'data': t.data.strftime('%d/%m/%Y %H:%M')
+        } for t in transacoes
+    ]
+
+    return Response({
+        'numero_conta': conta.numero_conta,
+        'extrato': extrato
+    })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def transferencia(request):
+    try:
+        conta_origem_numero = request.data.get('conta_origem')
+        conta_destino_numero = request.data.get('conta_destino')
+        valor = request.data.get('valor')
+
+        conta_origem = get_object_or_404(ContaBancaria, numero_conta=conta_origem_numero)
+
+        if conta_origem.cliente != request.user:
+            return Response({'erro': 'Você só pode transferir a partir da sua própria conta.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        transferir_valor(conta_origem_numero, conta_destino_numero, valor)
+
+        return Response({
+            'mensagem': f'Transferência de R${valor} realizada com sucesso.',
+        })
+    
+    except Exception as e:
+        return Response({'erro': str(e)}, status=status.HTTP_400_BAD_REQUEST)

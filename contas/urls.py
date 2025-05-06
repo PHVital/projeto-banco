@@ -2,8 +2,11 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('criar/', views.criar_cliente_conta, name='criar_cliente_conta'), # type: ignore
-    path('depositar/', views.depositar, name='depositar'),
-    path('sacar/', views.sacar, name='sacar'),
-    path('saldo/<str:numero_conta>/', views.consultar_saldo, name='consultar_saldo')
+    path('registrar/', views.registrar_cliente),
+    path('login/', views.autenticar_cliente),
+    path('deposito/', views.deposito),
+    path('saque/', views.saque),
+    path('saldo/', views.consultar_saldo),
+    path('extrato/', views.extrato_transacoes),
+    path('transferencia/', views.transferencia, name='transferencia'),
 ]
