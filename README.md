@@ -3,7 +3,17 @@
 ![Badge de Linguagem](https://img.shields.io/badge/Python-3.11-blue.svg)
 ![Badge de Framework](https://img.shields.io/badge/Django-5.2-green.svg)
 ![Badge de DRF](https://img.shields.io/badge/DRF-3.15-red.svg)
-Uma API RESTful desenvolvida em Django e Django REST Framework para simular as operações básicas de um sistema bancário, incluindo gerenciamento de contas, transações com despósito, saque e transferência.
+> Uma API RESTful desenvolvida em Django e Django REST Framework para simular as operações básicas de um sistema bancário, incluindo gerenciamento de contas, transações com depósito, saque e transferência.
+
+## 📑 Sumário
+
+- [Funcionalidades](#funcionalidades-principais)
+- [Tech Stack](#tecnologias-utilizadas-tech-stack)
+- [Como Rodar Localmente](#como-configurar-e-rodar-o-projeto-localmente)
+- [Estrutura do Projeto](#estrutura-do-projeto-simplificada)
+- [Endpoints da API](#endpoints-da-api)
+- [Rodar Testes](#como-rodar-os-testes-automatizados)
+- [Autor](#autor)
 
 ## Funcionalidades Principais
 
@@ -39,8 +49,8 @@ Uma API RESTful desenvolvida em Django e Django REST Framework para simular as o
 
 1. **Clone o repositório:**
     ```bash
-    git clone [URL_DO_SEU_REPOSITORIO_GITHUB]
-    cd nome-do-seu-projeto
+    git clone https://github.com/PHVital/projeto-banco.git
+    cd projeto-banco
     ```
 
 2. **Crie e ative um ambiente virtual:**
@@ -245,6 +255,6 @@ Aqui estão os principais endpoints disponíveis.
 
 ## Autor
 
-* **[Pedro Henrique Vital Guimarães]**
-* GitHub: `[@PHVital](https://github.com/PHVital)`
-* LinkedIn: `[Pedro Henrique Vital Guimarães](https://www.linkedin.com/in/pedro-henrique-vital-guimar%C3%A3es/)`
+* **Pedro Henrique Vital Guimarães**
+* GitHub: [@PHVital](https://github.com/PHVital)
+* LinkedIn: [Pedro Henrique Vital Guimarães](https://www.linkedin.com/in/pedro-henrique-vital-guimar%C3%A3es/)
