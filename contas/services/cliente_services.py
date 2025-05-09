@@ -2,16 +2,17 @@ from contas.models import Cliente, ContaBancaria, Transacao
 from rest_framework.authtoken.models import Token
 from decimal import Decimal
 
-def criar_cliente_e_conta(nome, cpf, email, data_nascimento, senha):
-    cliente = Cliente(
-        nome=nome,
+def criar_cliente_e_conta(cpf: str, nome: str, email: str, senha: str, data_nascimento=None):
+    if not all([cpf, nome, email, senha]):
+        raise ValueError('CPF, nome, email e senha são obrigatórios.')
+    
+    cliente = Cliente.objects.create_user(
         cpf=cpf,
         email=email,
+        nome=nome,
         data_nascimento=data_nascimento,
+        password=senha
     )
-    cliente.set_password(senha)
-    cliente.full_clean()
-    cliente.save()
 
     conta = ContaBancaria.objects.create(cliente=cliente)
     token, _ = Token.objects.get_or_create(user=cliente)
