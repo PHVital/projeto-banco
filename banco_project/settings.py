@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'contas',
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_spectacular',
 ]
 
 REST_FRAMEWORK = {
@@ -53,6 +54,36 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
+    'EXCEPTION_HANDLER': 'banco_project.custom_exception_handler.custom_api_exception_handler',
+
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'API Banco Digital',
+    'DESCRIPTION': 'Documentação da API para o sistema de banco digital, permitindo operações como criação de contas, login, depósitos, saques e transferências.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,  
+
+    'SWAGGER_UI_SETTINGS': {
+        'persistAuthorization': True,
+    },
+    'SECURITY': [
+        {
+            "tokenAuth": [] 
+        }
+    ],
+    
+    'COMPONENTS': {
+        'securitySchemes': {
+            'tokenAuth': { 
+                'type': 'apiKey',
+                'in': 'header',
+                'name': 'Authorization',
+                'description': "Autenticação por Token. Use o prefixo 'Token ' (ex: 'Token SEU_TOKEN_AQUI')."
+            }
+        }
+    },
 }
 
 AUTHENTICATION_BACKENDS = [
