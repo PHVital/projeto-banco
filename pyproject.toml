@@ -1,6 +1,6 @@
 [tool.black]
 line-length = 88
-target-version = ['py311'] # Especifique a versão do Python que você está usando (ex: py311 para Python 3.11)
+target-version = ['py311']
 # include = '\.pyi?$'
 # exclude = '''
 # /(

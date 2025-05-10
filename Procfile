@@ -1,0 +1,1 @@
+web: gunicorn banco_project.wsgi:application --workers 4 --threads 4 --worker-tmp-dir /dev/shm
