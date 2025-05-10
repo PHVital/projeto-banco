@@ -11,42 +11,67 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contas', '0005_alter_cliente_password'),
+        ("contas", "0005_alter_cliente_password"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='transacao',
-            options={'ordering': ['-data']},
+            name="transacao",
+            options={"ordering": ["-data"]},
         ),
         migrations.AlterField(
-            model_name='contabancaria',
-            name='cliente',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='contas_bancarias', to=settings.AUTH_USER_MODEL),
+            model_name="contabancaria",
+            name="cliente",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="contas_bancarias",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='contabancaria',
-            name='saldo',
-            field=models.DecimalField(decimal_places=2, default=Decimal('0.00'), max_digits=10, validators=[django.core.validators.MinValueValidator(Decimal('0.00'))]),
+            model_name="contabancaria",
+            name="saldo",
+            field=models.DecimalField(
+                decimal_places=2,
+                default=Decimal("0.00"),
+                max_digits=10,
+                validators=[django.core.validators.MinValueValidator(Decimal("0.00"))],
+            ),
         ),
         migrations.AlterField(
-            model_name='transacao',
-            name='conta',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='transacoes', to='contas.contabancaria'),
+            model_name="transacao",
+            name="conta",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="transacoes",
+                to="contas.contabancaria",
+            ),
         ),
         migrations.AlterField(
-            model_name='transacao',
-            name='data',
+            model_name="transacao",
+            name="data",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
         migrations.AlterField(
-            model_name='transacao',
-            name='tipo',
-            field=models.CharField(choices=[('D', 'Depósito'), ('S', 'Saque'), ('TE', 'Transferência Enviada'), ('TR', 'Transferência Recebida')], max_length=2),
+            model_name="transacao",
+            name="tipo",
+            field=models.CharField(
+                choices=[
+                    ("D", "Depósito"),
+                    ("S", "Saque"),
+                    ("TE", "Transferência Enviada"),
+                    ("TR", "Transferência Recebida"),
+                ],
+                max_length=2,
+            ),
         ),
         migrations.AlterField(
-            model_name='transacao',
-            name='valor',
-            field=models.DecimalField(decimal_places=2, max_digits=10, validators=[django.core.validators.MinValueValidator(Decimal('0.01'))]),
+            model_name="transacao",
+            name="valor",
+            field=models.DecimalField(
+                decimal_places=2,
+                max_digits=10,
+                validators=[django.core.validators.MinValueValidator(Decimal("0.01"))],
+            ),
         ),
     ]

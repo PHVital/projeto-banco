@@ -8,37 +8,80 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Cliente',
+            name="Cliente",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nome', models.CharField(max_length=100)),
-                ('cpf', models.CharField(max_length=11, unique=True)),
-                ('data_nascimento', models.DateField()),
-                ('email', models.EmailField(max_length=254)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("nome", models.CharField(max_length=100)),
+                ("cpf", models.CharField(max_length=11, unique=True)),
+                ("data_nascimento", models.DateField()),
+                ("email", models.EmailField(max_length=254)),
             ],
         ),
         migrations.CreateModel(
-            name='ContaBancaria',
+            name="ContaBancaria",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('numero_conta', models.CharField(max_length=10, unique=True)),
-                ('saldo', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
-                ('cliente', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contas.cliente')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("numero_conta", models.CharField(max_length=10, unique=True)),
+                (
+                    "saldo",
+                    models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
+                ),
+                (
+                    "cliente",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="contas.cliente"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Transacao',
+            name="Transacao",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('tipo', models.CharField(choices=[('DEPOSITO', 'Depósito'), ('SAQUE', 'Saque')], max_length=10)),
-                ('valor', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('data', models.DateTimeField(auto_now_add=True)),
-                ('conta', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contas.contabancaria')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "tipo",
+                    models.CharField(
+                        choices=[("DEPOSITO", "Depósito"), ("SAQUE", "Saque")],
+                        max_length=10,
+                    ),
+                ),
+                ("valor", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("data", models.DateTimeField(auto_now_add=True)),
+                (
+                    "conta",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contas.contabancaria",
+                    ),
+                ),
             ],
         ),
     ]

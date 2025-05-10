@@ -1,4 +1,8 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
 from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -10,8 +14,8 @@ import uuid
 class ClienteManager(BaseUserManager):
     def create_user(self, cpf, email, nome, data_nascimento=None, password=None):
         if not cpf or not email:
-            raise ValueError('CPF e email são obrigatórios')
-        
+            raise ValueError("CPF e email são obrigatórios")
+
         email = self.normalize_email(email)
         cliente = self.model(
             cpf=cpf,
@@ -24,7 +28,13 @@ class ClienteManager(BaseUserManager):
         return cliente
 
     def create_superuser(self, cpf, email, nome, data_nascimento=None, password=None):
-        cliente = self.create_user(cpf=cpf, email=email, nome=nome, data_nascimento=data_nascimento, password=password)
+        cliente = self.create_user(
+            cpf=cpf,
+            email=email,
+            nome=nome,
+            data_nascimento=data_nascimento,
+            password=password,
+        )
         cliente.is_staff = True
         cliente.is_superuser = True
         cliente.save(using=self._db)
@@ -33,7 +43,7 @@ class ClienteManager(BaseUserManager):
 
 def validar_cpf(cpf):
     if not cpf.isdigit() or len(cpf) != 11:
-        raise ValidationError('CPF deve conter 11 dígitos numéricos.')
+        raise ValidationError("CPF deve conter 11 dígitos numéricos.")
 
 
 class Cliente(AbstractBaseUser, PermissionsMixin):
@@ -46,23 +56,25 @@ class Cliente(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
 
-    USERNAME_FIELD = 'cpf'
-    REQUIRED_FIELDS = ['email', 'nome', 'data_nascimento']
+    USERNAME_FIELD = "cpf"
+    REQUIRED_FIELDS = ["email", "nome", "data_nascimento"]
 
     objects = ClienteManager()
 
     def __str__(self):
-        return f'{self.nome} ({self.cpf})'
+        return f"{self.nome} ({self.cpf})"
 
 
 class ContaBancaria(models.Model):
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='contas_bancarias')
+    cliente = models.ForeignKey(
+        Cliente, on_delete=models.CASCADE, related_name="contas_bancarias"
+    )
     numero_conta = models.CharField(max_length=12, unique=True, blank=True)
     saldo = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        default=Decimal('0.00'),
-        validators=[MinValueValidator(Decimal('0.00'))]
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        validators=[MinValueValidator(Decimal("0.00"))],
     )
 
     def save(self, *args, **kwargs):
@@ -75,28 +87,28 @@ class ContaBancaria(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'Conta {self.numero_conta} - {self.cliente.nome}'
-    
+        return f"Conta {self.numero_conta} - {self.cliente.nome}"
+
 
 class Transacao(models.Model):
     TIPO_TRANSACAO = [
-        ('D', 'Depósito'),
-        ('S', 'Saque'),
-        ('TE', 'Transferência Enviada'),
-        ('TR', 'Transferência Recebida'),
+        ("D", "Depósito"),
+        ("S", "Saque"),
+        ("TE", "Transferência Enviada"),
+        ("TR", "Transferência Recebida"),
     ]
 
-    conta = models.ForeignKey(ContaBancaria, on_delete=models.CASCADE, related_name='transacoes')
+    conta = models.ForeignKey(
+        ContaBancaria, on_delete=models.CASCADE, related_name="transacoes"
+    )
     tipo = models.CharField(max_length=2, choices=TIPO_TRANSACAO)
     valor = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2,
-        validators=[MinValueValidator(Decimal('0.01'))]
+        max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0.01"))]
     )
     data = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f'{self.get_tipo_display()} de R${self.valor} - Conta {self.conta.numero_conta}' # type: ignore
-    
+        return f"{self.get_tipo_display()} de R${self.valor} - Conta {self.conta.numero_conta}"  # type: ignore
+
     class Meta:
-        ordering = ['-data']
+        ordering = ["-data"]

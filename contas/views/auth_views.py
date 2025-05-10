@@ -5,21 +5,24 @@ from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
 from contas.models import Cliente
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 def autenticar_cliente_token(request):
-    cpf = request.data.get('cpf')
-    senha = request.data.get('senha')
+    cpf = request.data.get("cpf")
+    senha = request.data.get("senha")
 
     user = authenticate(request, cpf=cpf, password=senha)
 
     if user is None:
-        return Response({'erro': 'Credenciais inválidas'}, status=401)
+        return Response({"erro": "Credenciais inválidas"}, status=401)
 
     token, _ = Token.objects.get_or_create(user=user)
 
-    return Response({
-        'mensagem': 'Autenticado com sucesso!',
-        'token': token.key,
-        'cliente_id': user.id,
-        'nome': user.nome
-    })
+    return Response(
+        {
+            "mensagem": "Autenticado com sucesso!",
+            "token": token.key,
+            "cliente_id": user.id,
+            "nome": user.nome,
+        }
+    )

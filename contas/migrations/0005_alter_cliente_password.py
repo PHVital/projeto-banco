@@ -6,13 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contas', '0004_cliente_date_joined_cliente_groups_cliente_is_active_and_more'),
+        (
+            "contas",
+            "0004_cliente_date_joined_cliente_groups_cliente_is_active_and_more",
+        ),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='cliente',
-            name='password',
-            field=models.CharField(max_length=128, verbose_name='password'),
+            model_name="cliente",
+            name="password",
+            field=models.CharField(max_length=128, verbose_name="password"),
         ),
     ]

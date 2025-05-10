@@ -7,13 +7,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contas', '0002_alter_contabancaria_numero_conta_and_more'),
+        ("contas", "0002_alter_contabancaria_numero_conta_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='cliente',
-            name='cpf',
-            field=models.CharField(max_length=11, unique=True, validators=[contas.models.validar_cpf]),
+            model_name="cliente",
+            name="cpf",
+            field=models.CharField(
+                max_length=11, unique=True, validators=[contas.models.validar_cpf]
+            ),
         ),
     ]
