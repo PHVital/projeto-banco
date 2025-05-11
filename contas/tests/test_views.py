@@ -199,9 +199,10 @@ class TestOperacoesContaView:
         response = api_client.post(url, payload, format="json")
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert (
-            "As credenciais de autenticação não foram fornecidas"
-            in response.data["detail"]
+        assert "errors" in response.data
+        assert "detail" in response.data["errors"]
+        assert "As credenciais de autenticação não foram fornecidas." in str(
+            response.data["errors"]["detail"][0]
         )
 
     def test_consultar_saldo_sucesso(self, cliente_autenticado_com_conta):
@@ -224,3 +225,8 @@ class TestOperacoesContaView:
         response = api_client.get(url, format="json")
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert "errors" in response.data
+        assert "detail" in response.data["errors"]
+        assert "As credenciais de autenticação não foram fornecidas." in str(
+            response.data["errors"]["detail"][0]
+        )
