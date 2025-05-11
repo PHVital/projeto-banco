@@ -1,5 +1,6 @@
-# Projeto Banco Digital API (Nome do Seu Projeto)
+# Projeto Banco Digital API
 
+[![Django CI Banco Project](https://github.com/PHVital/projeto-banco/actions/workflows/django-ci.yml/badge.svg)](https://github.com/PHVital/projeto-banco/actions/workflows/django-ci.yml)
 ![Badge de Linguagem](https://img.shields.io/badge/Python-3.11-blue.svg)
 ![Badge de Framework](https://img.shields.io/badge/Django-5.2-green.svg)
 ![Badge de DRF](https://img.shields.io/badge/DRF-3.15-red.svg)
