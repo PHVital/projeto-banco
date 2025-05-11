@@ -59,7 +59,7 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ],
-    "EXCEPTION_HANDLER": 'banco_project.custom_exception_handler.custom_api_exception_handler',
+    "EXCEPTION_HANDLER": "banco_project.custom_exception_handler.custom_api_exception_handler",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
