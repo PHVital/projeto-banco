@@ -256,13 +256,13 @@ Aqui estão os principais endpoints disponíveis.
 
 ## API em Produção
 
-A API está disponível em: `https://seu-nome-de-servico.onrender.com/api/`
+A API está disponível em: `https://api-banco-phvital.onrender.com/api/`
 
 ### Documentação Interativa (Swagger UI)
-`https://seu-nome-de-servico.onrender.com/api/docs/swagger/`
+`https://api-banco-phvital.onrender.com/api/docs/swagger/`
 
 ### Documentação (ReDoc)
-`https://seu-nome-de-servico.onrender.com/api/docs/redoc/`
+`https://api-banco-phvital.onrender.com/api/docs/redoc/`
 
 ## Autor
 
