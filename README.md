@@ -33,20 +33,31 @@
     * Python 3.11+
     * Django 5.2+
     * Django REST Framework (DRF)
-    * SQLite (para desenvolvimento - pode ser substituído por PostgreSQL para produção)
     * Autenticação por Token (DRF `authtoken`)
+* **Banco de Dados:**
+    * SQLite (para testes locais sem Docker)
+    * PostgreSQL (em produção e desenvolvimento com Docker)
 * **Testes:**
     * Pytest
     * pytest-django
     * Postman (para testes manuais/exploratórios da API)
+* **Deploy e Infraestrutura:**
+    * Docker e Docker Compose
+    * Gunicorn (Servidor WSGI)
+    * WhiteNoise (Servir arquivos estáticos)
+    * Render (Plataforma de Cloud para deploy)
+    * GitHub Actions (Integração Contínua - CI)
 
 ## Pré-requisitos
 
 * Python 3.11 ou superior
 * Pip (gerenciador de pacotes Python)
 * Git
+* Docker e Docker Compose
 
 ## Como Configurar e Rodar o Projeto Localmente
+
+Este projeto é totalmente containerizado, então a maneira mais fácil de rodá-lo é com o Docker.
 
 1. **Clone o repositório:**
     ```bash
@@ -54,43 +65,22 @@
     cd projeto-banco
     ```
 
-2. **Crie e ative um ambiente virtual:**
-    ```bash
-    python -m venv venv
-    # No Windows
-    venv\Scripts\activate
-    # No macOS/Linux
-    source venv/bin/activate
-    ```
-
-3.  **Instale as dependências:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-4.  **Configure as variáveis de ambiente (se aplicável):**
-    * Se você estiver usando um arquivo `.env` (com `python-decouple`, por exemplo), crie-o na raiz do projeto e adicione as variáveis necessárias (ex: `SECRET_KEY`, `DEBUG`).
-    * Exemplo de `.env`:
+2. **Crie o arquivo de variáveis de ambiente:**
+    * Copie o arquivo de exemplo `.env.example` para um novo arquivo chamado `.env`.
+    * (Se você não tiver um `.env.example`, apenas crie um `.env` na raiz do projeto).
+    * Adicione as seguintes variáveis:
         ```
-        SECRET_KEY=sua_secret_key_aqui
+        SECRET_KEY=sua_secret_key_super_secreta_aqui
         DEBUG=True
         ```
 
-5.  **Aplique as migrações do banco de dados:**
+3.  **Suba os containers:**
     ```bash
-    python manage.py migrate
+    docker-compose up --build
     ```
+    Este comando irá construir a imagem da aplicação, baixar a imagem do PostgreSQL e iniciar ambos os containers.
 
-6.  **Crie um superusuário (opcional, para acesso ao Django Admin):**
-    ```bash
-    python manage.py createsuperuser
-    ```
-
-7.  **Rode o servidor de desenvolvimento:**
-    ```bash
-    python manage.py runserver
-    ```
-    A API estará acessível em `http://127.0.0.1:8000/api/`.
+A API estará acessível em `http://127.0.0.1:8000/api/`.
 
 ## Estrutura do Projeto (Simplificada)
 
@@ -103,6 +93,7 @@ projeto-banco/
 │   ├── models.py
 │   ├── serializers.py
 │   ├── views.py
+│   ├── viewsets.py
 │   ├── urls.py        # URLs específicas do app 'contas'
 │   ├── services/      # Lógica de negócios
 │   └── tests/         # Testes automatizados (Pytest)
@@ -169,78 +160,44 @@ Aqui estão os principais endpoints disponíveis.
 
 **Operações de Conta (Requer Autenticação - Header: `Authorization: Token SEU_TOKEN`)**
 
-* **`POST /api/deposito/`**
-    * Realiza um depósito na conta do usuário autenticado (ou na conta especificada, se sua lógica permitir).
+* **`POST /api/contas/{id}/deposito/`**
+    * Realiza um depósito em uma conta específica.
     * **Corpo da Requisição (Exemplo):**
         ```json
         {
-          "numero_conta": "NUMERO_DA_CONTA_DO_USUARIO_LOGADO",
           "valor": "100.50"
         }
         ```
-    * **Resposta de Sucesso (200 OK):**
-        ```json
-        {
-          "mensagem": "Depósito de R$100.50 realizado com sucesso.",
-          "conta": { /* ... dados atualizados da conta ... */ }
-        }
-        ```
 
-* **`POST /api/saque/`**
-    * Realiza um saque da conta do usuário autenticado.
+* **`POST /api/contas/{id}/saque/`**
+    * Realiza um saque de uma conta específica.
     * **Corpo da Requisição (Exemplo):**
         ```json
         {
-          "numero_conta": "NUMERO_DA_CONTA_DO_USUARIO_LOGADO",
           "valor": "50.00"
         }
         ```
-    * **Resposta de Sucesso (200 OK):** (Similar ao depósito)
 
-* **`POST /api/transferencia/`**
-    * Realiza uma transferência da conta do usuário autenticado para outra conta.
+* **`POST /api/contas/{id}/transferencia/`**
+    * Realiza uma transferência da conta especificada ({id}) para outra conta.
     * **Corpo da Requisição (Exemplo):**
         ```json
         {
-          "conta_origem": "NUMERO_DA_CONTA_DO_USUARIO_LOGADO",
           "conta_destino": "NUMERO_DA_CONTA_DESTINO",
           "valor": "25.00"
         }
         ```
-    * **Resposta de Sucesso (200 OK):** (Mensagem de sucesso)
 
 **Consultas (Requer Autenticação)**
 
-* **`GET /api/saldo/`**
-    * Retorna o saldo da conta do usuário autenticado.
-    * **Resposta de Sucesso (200 OK):**
-        ```json
-        {
-          "numero_conta": "NUMERO_DA_CONTA",
-          "saldo": "VALOR_DO_SALDO.DD"
-        }
-        ```
+* **`GET /api/contas/`**
+    * Lista todas as contas bancárias pertencentes ao usuário autenticado.
 
-* **`GET /api/extrato/`**
-    * Retorna o extrato de transações da conta do usuário autenticado.
-    * **Resposta de Sucesso (200 OK):**
-        ```json
-        {
-          "conta": {
-            "numero_conta": "...",
-            "saldo_atual": "..."
-          },
-          "extrato": [
-            {
-              "tipo_codigo": "D",
-              "tipo_descricao": "Depósito",
-              "valor": "100.00",
-              "data": "DD/MM/YYYY HH:MM:SS"
-            },
-            // ... outras transações
-          ]
-        }
-        ```
+* **`GET /api/contas/{id}/`**
+    * Retorna os detalhes (incluindo saldo) de uma conta específica do usuário.
+
+* **`GET /api/contas/{id}/extrato/`**
+    * Retorna o extrato de transações de uma conta específica.
 
 ## Como Rodar os Testes Automatizados
 
