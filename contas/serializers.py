@@ -115,3 +115,17 @@ class TransferenciaSerializer(serializers.Serializer):
                 "A conta de origem e destino não podem ser iguais."
             )
         return data
+
+
+class OperacaoSerializer(serializers.Serializer):
+    valor = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=Decimal('0.01'))
+
+
+class TransferenciaInternaSerializer(serializers.Serializer):
+    conta_destino = serializers.CharField(max_length=12)
+    valor = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=Decimal('0.01'))
+
+    def validate_conta_destino(self, value):
+        if not ContaBancaria.objects.filter(numero_conta=value).exists():
+            raise serializers.ValidationError('A conta de destino não existe.')
+        return value
