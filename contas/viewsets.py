@@ -38,35 +38,39 @@ class ContaViewSet(viewsets.GenericViewSet):
         serializer = TransacaoSerializer(transacoes, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['post'], serializer_class=OperacaoSerializer)
+    @action(detail=True, methods=["post"], serializer_class=OperacaoSerializer)
     def deposito(self, request, pk=None):
         conta = self.get_object()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         depositar_valor(
-            numero_conta=conta.numero_conta,
-            valor=serializer.validated_data['valor']
+            numero_conta=conta.numero_conta, valor=serializer.validated_data["valor"]
         )
         conta_atualizada = self.get_object()
         conta_data = ContaBancariaSerializer(conta_atualizada).data
-        return Response({'mensagem': 'Depósito realizado com sucesso.', 'conta': conta_data})
+        return Response(
+            {"mensagem": "Depósito realizado com sucesso.", "conta": conta_data}
+        )
 
-    @action(detail=True, methods=['post'], serializer_class=OperacaoSerializer)
+    @action(detail=True, methods=["post"], serializer_class=OperacaoSerializer)
     def saque(self, request, pk=None):
         conta = self.get_object()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         sacar_valor(
-            numero_conta=conta.numero_conta,
-            valor=serializer.validated_data['valor']
+            numero_conta=conta.numero_conta, valor=serializer.validated_data["valor"]
         )
         conta_atualizada = self.get_object()
         conta_data = ContaBancariaSerializer(conta_atualizada).data
-        return Response({'mensagem': 'Saque realizado com sucesso.', 'conta': conta_data})
+        return Response(
+            {"mensagem": "Saque realizado com sucesso.", "conta": conta_data}
+        )
 
-    @action(detail=True, methods=['post'], serializer_class=TransferenciaInternaSerializer)
+    @action(
+        detail=True, methods=["post"], serializer_class=TransferenciaInternaSerializer
+    )
     def transferencia(self, request, pk=None):
         conta_origem = self.get_object()
         serializer = self.get_serializer(data=request.data)
@@ -76,7 +80,7 @@ class ContaViewSet(viewsets.GenericViewSet):
 
         transferir_valor(
             conta_origem_numero=conta_origem.numero_conta,
-            conta_destino_numero=dados_validados['conta_destino'],
-            valor_transferencia=dados_validados['valor']
+            conta_destino_numero=dados_validados["conta_destino"],
+            valor_transferencia=dados_validados["valor"],
         )
-        return Response({'mensagem': 'Transferência realizada com sucesso.'})
+        return Response({"mensagem": "Transferência realizada com sucesso."})
