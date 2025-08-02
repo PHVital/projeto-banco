@@ -164,7 +164,7 @@ class TestLoginClienteView:
 class TestOperacoesContaView:
     def test_deposito_sucesso(self, cliente_autenticado_com_conta):
         client, cliente_obj, conta_obj = cliente_autenticado_com_conta
-        url = reverse("deposito")
+        url = reverse("conta-deposito", kwargs={"pk": conta_obj.pk})
 
         saldo_anterior = conta_obj.saldo
         valor_deposito = Decimal("100.00")
@@ -190,7 +190,7 @@ class TestOperacoesContaView:
         ).exists()
 
     def test_deposito_sem_autenticacao(self, api_client, conta_generica):
-        url = reverse("deposito")
+        url = reverse("conta-deposito", kwargs={"pk": conta_generica.pk})
         payload = {
             "numero_conta": conta_generica.numero_conta,
             "valor": "50.00",
@@ -207,7 +207,7 @@ class TestOperacoesContaView:
 
     def test_consultar_saldo_sucesso(self, cliente_autenticado_com_conta):
         client, cliente_obj, conta_obj = cliente_autenticado_com_conta
-        url = reverse("consultar_saldo")
+        url = reverse("conta-detail", kwargs={"pk": conta_obj.pk})
 
         saldo_esperado = Decimal("123.45")
         conta_obj.saldo = saldo_esperado
@@ -219,8 +219,8 @@ class TestOperacoesContaView:
         assert response.data["numero_conta"] == conta_obj.numero_conta
         assert Decimal(response.data["saldo"]) == saldo_esperado
 
-    def test_consultar_saldo_sem_autenticacao(self, api_client):
-        url = reverse("consultar_saldo")
+    def test_consultar_saldo_sem_autenticacao(self, api_client, conta_generica):
+        url = reverse("conta-detail", kwargs={"pk": conta_generica.pk})
 
         response = api_client.get(url, format="json")
 
